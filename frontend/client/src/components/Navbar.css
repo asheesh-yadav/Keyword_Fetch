@@ -1,0 +1,27 @@
+.app-navbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid #eaeaea;
+  padding: 12px 20px;
+}
+
+.navbar-brand {
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+}
+
+.nav-link {
+  font-weight: 500;
+  color: #555;
+  padding: 8px 14px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.nav-link:hover {
+  background-color: #f1f3f5;
+}
+
+.nav-link.active {
+  background-color: #0d6efd;
+  color: #fff !important;
+}
