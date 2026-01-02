@@ -1,0 +1,15 @@
+.dashboard {
+  padding: 30px;
+  background-color: #f8f9fb;
+  min-height: 100vh;
+}
+
+.dashboard-header h4 {
+  margin-bottom: 4px;
+}
+
+.filter-card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+}
