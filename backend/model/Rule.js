@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const monitoringRuleSchema = new mongoose.Schema(
+const mySchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -66,4 +66,4 @@ alertType: {
   }
 );
 
-export const MonitoringRule = mongoose.model("MonitoringRule", monitoringRuleSchema);
+export const MonitoringRule = mongoose.model("MonitoringRule", mySchema);
