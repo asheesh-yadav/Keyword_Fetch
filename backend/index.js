@@ -58,6 +58,6 @@ app.use("/api/rules", RuleRoutes);
 app.use("/api/articles", articleRoutes);
 
 
-app.get("/",()=>{
+app.get("/",(req,res)=>{
     res.status(200).json({message:"This is home root"});
 })
