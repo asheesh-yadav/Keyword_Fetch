@@ -1,6 +1,13 @@
 import "./ArticleList.css";
+import { useState } from "react";
+import ArticleModal from "./ArticleModal";
+
+
 
 const ArticleList = ({ articles, loading }) => {
+const [selectedArticle, setSelectedArticle] = useState(null);
+
+
   if (loading) {
     return <div className="text-center py-5">Loading articles...</div>;
   }
@@ -29,21 +36,36 @@ const ArticleList = ({ articles, loading }) => {
                   {new Date(article.publishedAt).toLocaleDateString()}
                 </small>
 
-                <div className="mt-3">
-                  <a
-                    href={article.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="btn btn-sm btn-outline-primary w-100"
-                  >
-                    Read Article
-                  </a>
-                </div>
+                          <div className="mt-3 d-flex gap-2">
+                              <a
+                                  href={article.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="btn btn-sm btn-outline-primary w-100"
+                              >
+                                  Read
+                              </a>
+
+                              <button
+                                  className="btn btn-sm btn-outline-secondary w-100"
+                                  onClick={() => setSelectedArticle(article)}
+                              >
+                                  Details
+                              </button>
+                          </div>
+
               </div>
             </div>
           </div>
         </div>
       ))}
+
+       {selectedArticle && (
+        <ArticleModal
+          article={selectedArticle}
+          onClose={() => setSelectedArticle(null)}
+        />
+      )}
     </div>
   );
 };
