@@ -23,7 +23,7 @@ const RuleForm = ({ onCreated }) => {
   const res = await api.post("/rules", {
       name,
       keywords: keywords.split(",").map((k) => k.trim()),
-      sources: [selectedSource],
+      sources: selectedSource ? [selectedSource] : [],
       alertType,
     });
 
@@ -72,11 +72,10 @@ const RuleForm = ({ onCreated }) => {
             <label className="form-label">Source</label>
             <select
               className="form-select"
-              required
               value={selectedSource}
               onChange={(e) => setSelectedSource(e.target.value)}
             >
-              <option value="">Select source</option>
+              <option value="">All Sources</option>
               {sources.map((s) => (
                 <option key={s._id} value={s._id}>
                   {s.name}

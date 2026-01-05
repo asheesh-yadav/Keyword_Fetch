@@ -23,6 +23,13 @@ app.use(cors());
 mongoose.connect(process.env.MONGO_URL)
   .then(async() => {
     console.log("MongoDB connected");
+ 
+    //  if (process.env.CLEAN_ARTICLES === "true") {
+    //   const result = await mongoose.connection
+    //     .collection("articles")
+    //     .deleteMany({});
+    //   console.log(`[CLEANUP] Articles deleted: ${result.deletedCount}`);
+    // }
 
     startCollectionScheduler(); 
     startRuleScheduler();

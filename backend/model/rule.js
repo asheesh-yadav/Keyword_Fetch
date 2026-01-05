@@ -25,10 +25,10 @@ const mySchema = new mongoose.Schema(
       }
     ],
 
-    language: {
-      type: String,
-      default: "en"
-    },
+    // language: {
+    //   type: String,
+    //   default: "en"
+    // },
 
     frequency: {
       type: String,

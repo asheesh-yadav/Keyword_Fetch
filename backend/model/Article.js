@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 
 const articleSchema = new mongoose.Schema(
   {
+  sourceId: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Source"
+ },
     title: {
       type: String,
       required: true,

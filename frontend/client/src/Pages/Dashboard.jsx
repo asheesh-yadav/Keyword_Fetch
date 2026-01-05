@@ -9,7 +9,8 @@ const Dashboard = () => {
 
   // Filters
   const [search, setSearch] = useState("");
-  const [source, setSource] = useState("");
+  const [sources, setSources] = useState([]);
+  const [selectedSource, setSelectedSource] = useState("all");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [language, setLanguage] = useState("all");
@@ -28,7 +29,7 @@ const Dashboard = () => {
     };
 
     if (search) params.search = search;
-    if (source) params.source = source;
+    if (selectedSource !== "all") params.source = selectedSource;
     if (from) params.from = from;
     if (to) params.to = to;
     if (language !== "all") params.language = language;
@@ -39,6 +40,11 @@ const Dashboard = () => {
     setTotalPages(res.data.totalPages || 1);
     setLoading(false);
   };
+
+ useEffect(() => {
+    api.get("/sources").then((res) => setSources(res.data.sources || res.data || []));
+  }, []);
+
 
   useEffect(() => {
     fetchArticles();
@@ -54,7 +60,7 @@ const Dashboard = () => {
   const handleExport = async () => {
     const params = {};
     if (search) params.search = search;
-    if (source) params.source = source;
+    if (selectedSource) params.source = selectedSource;
     if (from) params.from = from;
     if (to) params.to = to;
 
@@ -95,6 +101,7 @@ const Dashboard = () => {
         </li>
       );
     }
+
 
     return (
      <nav className="mt-4">
@@ -162,15 +169,21 @@ const Dashboard = () => {
             />
           </div>
 
-          <div className="col-md-3">
-            <label className="form-label">Source</label>
-            <input
-              type="text"
-              className="form-control"
-              placeholder="e.g. Reuters"
-              value={source}
-              onChange={(e) => setSource(e.target.value)}
-            />
+            <div className="col-md-3">
+                  <label className="form-label">Source</label>
+            <select
+              className="form-select"
+              required
+              value={selectedSource}
+              onChange={(e) => setSelectedSource(e.target.value)}
+            >
+               <option value="all">All Sources</option> 
+              {sources.map((s) => (
+                <option key={s._id} value={s._id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
           </div>
 
                   <div className="col-md-2">

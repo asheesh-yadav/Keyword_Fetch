@@ -45,6 +45,7 @@ const article = await Article.findOneAndUpdate(
     description: articleData.description,
     publishedAt: articleData.publishedAt,
     sourceName: source.name,
+    sourceId: source._id,
     language: source.language, 
   },
   { upsert: true, new: true }

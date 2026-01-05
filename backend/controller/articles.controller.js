@@ -41,8 +41,8 @@ export const getArticles = async (req, res) => {
     }
 
     //  Source filter
-    if (source) {
-      filter.sourceName = source;
+    if (source && source!=="all") {
+      filter.sourceId = source;
     }
 
        //Language filter (AUTO, NOT USER FORCED)

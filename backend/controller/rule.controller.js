@@ -29,11 +29,30 @@ export const createMonitoringRule = async (req, res) => {
       });
     }
 
-    if (!Array.isArray(sources) || sources.length === 0) {
-      return res.status(400).json({
-        message: "At least one source is required"
-      });
-    }
+ 
+
+let finalSources = [];
+
+// If sources provided & not empty → validate them
+if (Array.isArray(sources) && sources.length > 0) {
+  const validSources = await Source.find({
+    _id: { $in: sources },
+    active: true
+  }).select("_id");
+
+  if (validSources.length !== sources.length) {
+    return res.status(400).json({
+      message: "One or more sources are invalid or inactive"
+    });
+  }
+
+  finalSources = validSources.map(s => s._id);
+} else {
+  // No sources provided → ALL active sources
+  const allSources = await Source.find({ active: true }).select("_id");
+  finalSources = allSources.map(s => s._id);
+}
+
 
     // Validate sources
     const validSources = await Source.find({
@@ -51,7 +70,7 @@ export const createMonitoringRule = async (req, res) => {
     const rule = await MonitoringRule.create({
       name,
       keywords,
-      sources,
+      sources : finalSources,
       frequency,
       language,
       alertType,

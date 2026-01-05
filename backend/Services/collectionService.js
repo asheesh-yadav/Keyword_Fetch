@@ -28,7 +28,8 @@ export const collectArticles = async () => {
     title: item.title,
     description: item.description,
     publishedAt: item.publishedAt,
-    sourceName: source.name,    
+    sourceName: source.name,  
+    sourceId: source._id,  
     language: source.language   
   },
   { upsert: true }
