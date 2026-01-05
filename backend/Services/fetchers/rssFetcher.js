@@ -14,7 +14,8 @@ export const fetchFromRSS = async (source) => {
       description: item.contentSnippet || item.content,
       url: item.link,
       publishedAt: item.isoDate ? new Date(item.isoDate) : null,
-      source: source.name
+      source: source.name,
+      language: source.language,
     }));
   } catch (error) {
     console.error(`[RSS ERROR] ${source.name}:`, error.message);

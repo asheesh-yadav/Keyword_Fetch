@@ -12,6 +12,7 @@ const Dashboard = () => {
   const [source, setSource] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
+  const [language, setLanguage] = useState("all");
 
   // Pagination
   const [page, setPage] = useState(1);
@@ -30,6 +31,7 @@ const Dashboard = () => {
     if (source) params.source = source;
     if (from) params.from = from;
     if (to) params.to = to;
+    if (language !== "all") params.language = language;
 
     const res = await api.get("/articles", { params });
 
@@ -95,33 +97,35 @@ const Dashboard = () => {
     }
 
     return (
-      <nav className="mt-4">
-        <ul className="pagination justify-content-center">
-          <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
-            <button
-              className="page-link"
-              onClick={() => setPage(page - 1)}
-            >
-              Previous
-            </button>
-          </li>
+     <nav className="mt-4">
+      <ul className="pagination justify-content-center align-items-center">
 
-          {pages}
-
-          <li
-            className={`page-item ${
-              page === totalPages ? "disabled" : ""
-            }`}
+        <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
+          <button
+            className="page-link"
+            onClick={() => setPage(page - 1)}
           >
-            <button
-              className="page-link"
-              onClick={() => setPage(page + 1)}
-            >
-              Next
-            </button>
-          </li>
-        </ul>
-      </nav>
+            Previous
+          </button>
+        </li>
+
+        <li className="page-item disabled">
+          <span className="page-link">
+            Page {page} of {totalPages}
+          </span>
+        </li>
+
+        <li className={`page-item ${page === totalPages ? "disabled" : ""}`}>
+          <button
+            className="page-link"
+            onClick={() => setPage(page + 1)}
+          >
+            Next
+          </button>
+        </li>
+
+      </ul>
+    </nav>
     );
   };
 
@@ -168,6 +172,20 @@ const Dashboard = () => {
               onChange={(e) => setSource(e.target.value)}
             />
           </div>
+
+                  <div className="col-md-2">
+                      <label className="form-label">Language</label>
+                      <select
+                          className="form-select"
+                          value={language}
+                          onChange={(e) => setLanguage(e.target.value)}
+                      >
+                          <option value="all">All</option>
+                          <option value="en">English</option>
+                          <option value="hi">Hindi</option>
+                          <option value="ja">Japanese</option>
+                      </select>
+                  </div>
 
           <div className="col-md-2">
             <label className="form-label">From</label>

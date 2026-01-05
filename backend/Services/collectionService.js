@@ -22,16 +22,17 @@ export const collectArticles = async () => {
 
     for (const item of articles) {
       try {
-        await Article.findOneAndUpdate(
-          { url: item.url },
-          {
-            title: item.title,
-            description: item.description,
-            publishedAt: item.publishedAt,
-            sourceName: source.name
-          },
-          { upsert: true }
-        );
+       await Article.findOneAndUpdate(
+  { url: item.url },
+  {
+    title: item.title,
+    description: item.description,
+    publishedAt: item.publishedAt,
+    sourceName: source.name,    
+    language: source.language   
+  },
+  { upsert: true }
+);
       } catch (err) {
         console.error("[COLLECTOR ERROR]", err.message);
       }

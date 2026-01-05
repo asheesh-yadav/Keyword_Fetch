@@ -38,16 +38,17 @@ export const executeRule = async (rule) => {
 
       try {
         // Save article globally (deduplicated by URL)
-        const article = await Article.findOneAndUpdate(
-          { url: articleData.url },
-          {
-            title: articleData.title,
-            description: articleData.description,
-            publishedAt: articleData.publishedAt,
-            sourceName: source.name,
-          },
-          { upsert: true, new: true }
-        );
+const article = await Article.findOneAndUpdate(
+  { url: articleData.url },
+  {
+    title: articleData.title,
+    description: articleData.description,
+    publishedAt: articleData.publishedAt,
+    sourceName: source.name,
+    language: source.language, 
+  },
+  { upsert: true, new: true }
+);
 
         // Save rule-article match
       const ruleMatch = await RuleMatch.findOneAndUpdate(
@@ -66,7 +67,7 @@ export const executeRule = async (rule) => {
           `[MATCHED] ${rule.name} → ${article.title} → ${matchedKeywords.join(", ")}`
         );
 
-if (ruleMatch.alertType === "instant" && !ruleMatch.notified) {
+if (rule.alertType === "instant" && !ruleMatch.notified) {
   // populate rule owner
   const populatedRule = await rule.populate("createdBy");
 

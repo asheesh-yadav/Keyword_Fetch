@@ -8,8 +8,7 @@ import { startCollectionScheduler } from "./cron/collectionScheduler.js";
 import { startRuleScheduler } from './cron/ruleScheduler.js';
 import { startDailyDigestScheduler } from './cron/dailyDigestScheduler.js';
 import cors from "cors";
-// import { ensureSystemUser } from "./seed/systemUser.js";
-// import { MonitoringRule } from './model/rule.js';
+
 
 dotenv.config();
 const app = express();
@@ -20,24 +19,10 @@ app.use(express.urlencoded({extended:true}));
 
 app.use(cors());
 
-// const fixCreatedBy = async () => {
-//   const USER_ID = new mongoose.Types.ObjectId("6956353bb592ecba4d5dbc93");
-
-//   const result = await MonitoringRule.updateMany(
-//     {},
-//     { $set: { createdBy: USER_ID } }
-//   );
-
-//   console.log(`[FIX] Rules updated: ${result.modifiedCount}`);
-// };
-
 
 mongoose.connect(process.env.MONGO_URL)
   .then(async() => {
     console.log("MongoDB connected");
-       // Ensure system user + rule ownership
-    // await ensureSystemUser();
-    // await fixCreatedBy();
 
     startCollectionScheduler(); 
     startRuleScheduler();

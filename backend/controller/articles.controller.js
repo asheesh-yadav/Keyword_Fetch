@@ -19,7 +19,8 @@ export const getArticles = async (req, res) => {
       search,
       from,
       to,
-      source
+      source,
+      language  
     } = req.query;
 
     const filter = {};
@@ -43,6 +44,11 @@ export const getArticles = async (req, res) => {
     if (source) {
       filter.sourceName = source;
     }
+
+       //Language filter (AUTO, NOT USER FORCED)
+    if (language && language !== "all") {
+      filter.language = language;
+    } 
 
     const total = await Article.countDocuments(filter);
 
