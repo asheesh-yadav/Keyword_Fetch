@@ -7,15 +7,55 @@ import { Source } from "../model/Source.js";
  */
 export const createSource = async (req, res) => {
   try {
-    const { name, publisherType, fetchMethod, endpoint, country, language } =
-      req.body;
+    const {
+      name,
+      publisherType,
+      fetchMethod,
+      endpoint,
+      country,
+      language,
+      scrapeConfig
+    } = req.body;
 
+    // Basic required fields
     if (!name || !publisherType || !fetchMethod || !endpoint) {
       return res.status(400).json({
         message: "Required fields are missing"
       });
     }
 
+    // Scraper-specific validation
+    if (fetchMethod === "scraper") {
+      if (!scrapeConfig) {
+        return res.status(400).json({
+          message: "scrapeConfig is required for scraper sources"
+        });
+      }
+
+      const {
+        articleSelector,
+        linkSelector,
+        titleSelector,
+        dateSelector,
+        contentSelector
+      } = scrapeConfig;
+
+      if (!articleSelector || !linkSelector) {
+        return res.status(400).json({
+          message:
+            "scrapeConfig.articleSelector and scrapeConfig.linkSelector are required"
+        });
+      }
+
+      // Soft warning (NOT error)
+      if (!contentSelector) {
+        console.warn(
+          `[WARN] Source "${name}" created without contentSelector. Keyword matching may be weak.`
+        );
+      }
+    }
+
+    // Prevent duplicate source names
     const existing = await Source.findOne({ name });
     if (existing) {
       return res.status(409).json({
@@ -23,16 +63,19 @@ export const createSource = async (req, res) => {
       });
     }
 
+    // Create source
     const source = await Source.create({
       name,
       publisherType,
       fetchMethod,
       endpoint,
       country,
-      language
+      language,
+      scrapeConfig
     });
 
     return res.status(201).json(source);
+
   } catch (error) {
     console.error("Create source error:", error);
     return res.status(500).json({
@@ -40,6 +83,7 @@ export const createSource = async (req, res) => {
     });
   }
 };
+
 
 
 /**

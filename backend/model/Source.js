@@ -10,9 +10,15 @@ const sourceSchema = new mongoose.Schema(
 
     publisherType: {
       type: String,
-      enum: ["news", "blogs", "social", "forums"],
       required: true
     },
+    scrapeConfig: {
+  articleSelector: String,   // selector for each article block
+  linkSelector: String,      // selector inside article
+  titleSelector: String,     // optional
+  dateSelector: String,      // optional
+  contentSelector: String   // article page selector (IMPORTANT)
+},
 
     fetchMethod: {
       type: String,

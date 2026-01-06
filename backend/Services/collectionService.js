@@ -1,6 +1,8 @@
 import { Source } from "../model/Source.js";
 import { Article } from "../model/Article.js";
 import { fetchFromRSS } from "./fetchers/rssFetcher.js";
+import { fetchByScraping } from "./fetchers/scrapeFetcher.js";
+import { fetchFromAPI } from "./fetchers/apiFetcher.js";
 
 /**
  * Collect articles globally (no rules, no alerts)
@@ -8,13 +10,28 @@ import { fetchFromRSS } from "./fetchers/rssFetcher.js";
 export const collectArticles = async () => {
   console.log("[COLLECTOR] Running global article collection");
 
-  const sources = await Source.find({
-    active: true,
-    fetchMethod: "rss"
-  });
+ const sources = await Source.find({
+  active: true
+});
 
   for (const source of sources) {
-    const articles = await fetchFromRSS(source);
+    let articles = []; 
+    
+if (source.fetchMethod === "rss") {
+  articles = await fetchFromRSS(source);
+}
+if (source.fetchMethod  === "scraper") {
+   articles = await fetchByScraping(source);
+}
+
+if (source.fetchMethod === "api") {
+  articles = await fetchFromAPI(source);
+}
+
+if (!articles.length) {
+  console.log(`[COLLECTOR] 0 fetched from ${source.name}`);
+  continue;
+}
 
     console.log(
       `[COLLECTOR] ${articles.length} fetched from ${source.name}`

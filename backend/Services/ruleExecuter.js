@@ -4,6 +4,8 @@ import { Article } from "../model/Article.js";
 import { RuleMatch } from "../model/RuleMatch.js";
 import { matchKeywords } from "../Services/keywordMatcher.js";
 import { sendAlertEmail } from "../utils/sendEmail.js";
+import { fetchByScraping } from "./fetchers/scrapeFetcher.js";
+import { fetchFromAPI } from "./fetchers/apiFetcher.js";
 
 /**
  * Execute a monitoring rule
@@ -17,9 +19,23 @@ export const executeRule = async (rule) => {
   });
 
   for (const source of sources) {
-    if (source.fetchMethod !== "rss") continue;
+       let articles = []; 
+       
+   if (source.fetchMethod === "rss") {
+     articles = await fetchFromRSS(source);
+   }
+   if (source.fetchMethod === "scraper") {
+     articles = await fetchByScraping(source);
+   }
+   
+if (source.fetchMethod === "api") {
+  articles = await fetchFromAPI(source);
+}
 
-    const articles = await fetchFromRSS(source);
+  if (!articles.length) {
+  console.log(`[COLLECTOR] 0 fetched from ${source.name}`);
+  continue;
+}
 
     console.log(
       `[EXECUTOR] ${articles.length} articles fetched from ${source.name}`

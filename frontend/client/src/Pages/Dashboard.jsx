@@ -23,10 +23,7 @@ const Dashboard = () => {
   const fetchArticles = async () => {
     setLoading(true);
 
-    const params = {
-      page,
-      limit,
-    };
+    const params = { page, limit };
 
     if (search) params.search = search;
     if (selectedSource !== "all") params.source = selectedSource;
@@ -41,10 +38,11 @@ const Dashboard = () => {
     setLoading(false);
   };
 
- useEffect(() => {
-    api.get("/sources").then((res) => setSources(res.data.sources || res.data || []));
+  useEffect(() => {
+    api.get("/sources").then((res) =>
+      setSources(res.data.sources || res.data || [])
+    );
   }, []);
-
 
   useEffect(() => {
     fetchArticles();
@@ -56,11 +54,10 @@ const Dashboard = () => {
     fetchArticles();
   };
 
-  // Export CSV
   const handleExport = async () => {
     const params = {};
     if (search) params.search = search;
-    if (selectedSource) params.source = selectedSource;
+    if (selectedSource !== "all") params.source = selectedSource;
     if (from) params.from = from;
     if (to) params.to = to;
 
@@ -71,113 +68,58 @@ const Dashboard = () => {
 
     const blob = new Blob([res.data], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
-
     const a = document.createElement("a");
     a.href = url;
     a.download = "articles.csv";
-    document.body.appendChild(a);
     a.click();
-    a.remove();
     window.URL.revokeObjectURL(url);
   };
 
-  // Pagination numbers
-  const renderPagination = () => {
-    if (totalPages <= 1) return null;
-
-    const pages = [];
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(
-        <li
-          key={i}
-          className={`page-item ${page === i ? "active" : ""}`}
-        >
-          <button
-            className="page-link"
-            onClick={() => setPage(i)}
-          >
-            {i}
-          </button>
-        </li>
-      );
-    }
-
-
-    return (
-     <nav className="mt-4">
-      <ul className="pagination justify-content-center align-items-center">
-
-        <li className={`page-item ${page === 1 ? "disabled" : ""}`}>
-          <button
-            className="page-link"
-            onClick={() => setPage(page - 1)}
-          >
-            Previous
-          </button>
-        </li>
-
-        <li className="page-item disabled">
-          <span className="page-link">
-            Page {page} of {totalPages}
-          </span>
-        </li>
-
-        <li className={`page-item ${page === totalPages ? "disabled" : ""}`}>
-          <button
-            className="page-link"
-            onClick={() => setPage(page + 1)}
-          >
-            Next
-          </button>
-        </li>
-
-      </ul>
-    </nav>
-    );
-  };
-
   return (
-    <div className="container-fluid dashboard">
-      <div className="d-flex justify-content-between align-items-center mb-3">
+    <div className="dashboard">
+
+      {/* === PRODUCT CONTEXT HEADER === */}
+      <div className="dashboard-header">
         <div>
-          <h4 className="fw-bold">Media Intelligence Dashboard</h4>
-          <p className="text-muted mb-0">
-            Search and explore latest articles
+          <h2>Media Intelligence Workspace</h2>
+          <p>
+            Discover, analyze, and monitor narratives across global media
+            sources. Use structured filters to reduce noise and surface
+            relevant signals.
           </p>
         </div>
 
         <button
-          className="btn btn-outline-secondary"
+          className="export-btn"
           onClick={handleExport}
           disabled={!articles.length}
         >
-          Export CSV
+          Export Results
         </button>
       </div>
 
-      {/* Filters */}
-      <form className="card filter-card mb-4" onSubmit={handleSearch}>
-        <div className="card-body row g-3 align-items-end">
-          <div className="col-md-4">
-            <label className="form-label">Keyword</label>
+
+      {/* === FILTER PANEL === */}
+      <form className="filter-panel" onSubmit={handleSearch}>
+        <div className="filter-grid">
+
+          <div>
+            <label>Keyword / Topic</label>
             <input
               type="text"
-              className="form-control"
-              placeholder="e.g. Trump, AI regulation"
+              placeholder="e.g. AI regulation, climate policy"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
 
-            <div className="col-md-3">
-                  <label className="form-label">Source</label>
+          <div>
+            <label>Source</label>
             <select
-              className="form-select"
-              required
               value={selectedSource}
               onChange={(e) => setSelectedSource(e.target.value)}
             >
-               <option value="all">All Sources</option> 
+              <option value="all">All Sources</option>
               {sources.map((s) => (
                 <option key={s._id} value={s._id}>
                   {s.name}
@@ -186,53 +128,62 @@ const Dashboard = () => {
             </select>
           </div>
 
-                  <div className="col-md-2">
-                      <label className="form-label">Language</label>
-                      <select
-                          className="form-select"
-                          value={language}
-                          onChange={(e) => setLanguage(e.target.value)}
-                      >
-                          <option value="all">All</option>
-                          <option value="en">English</option>
-                          <option value="hi">Hindi</option>
-                          <option value="ja">Japanese</option>
-                      </select>
-                  </div>
-
-          <div className="col-md-2">
-            <label className="form-label">From</label>
-            <input
-              type="date"
-              className="form-control"
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-            />
+          <div>
+            <label>Language</label>
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+            >
+              <option value="all">All Languages</option>
+              <option value="en">English</option>
+              <option value="hi">Hindi</option>
+              <option value="ja">Japanese</option>
+              <option value="ru">Russian</option>
+              <option value="pt">Portuguese</option>
+              <option value="es">Spanish</option>
+            </select>
+      
           </div>
 
-          <div className="col-md-2">
-            <label className="form-label">To</label>
-            <input
-              type="date"
-              className="form-control"
-              value={to}
-              onChange={(e) => setTo(e.target.value)}
-            />
+          <div>
+            <label>From</label>
+            <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} />
           </div>
 
-          <div className="col-md-1">
-            <button className="btn btn-primary w-100">
-              Search
-            </button>
+          <div>
+            <label>To</label>
+            <input type="date" value={to} onChange={(e) => setTo(e.target.value)} />
           </div>
+
+          <button className="search-btn">Run Search</button>
         </div>
       </form>
 
-      {/* Articles */}
+      {/* === QUERY SUMMARY === */}
+      <div className="query-summary">
+        <span><b>Query:</b> {search || "All topics"}</span>
+        <span><b>Sources:</b> {selectedSource === "all" ? "All" : "Filtered"}</span>
+        <span><b>Language:</b> {language === "all" ? "All" : language.toUpperCase()}</span>
+      </div>
+
+      {/* === RESULTS === */}
       <ArticleList articles={articles} loading={loading} />
 
-      {/* Pagination */}
-      {renderPagination()}
+      {/* === PAGINATION === */}
+      {totalPages > 1 && (
+        <div className="pagination-bar">
+          <button disabled={page === 1} onClick={() => setPage(page - 1)}>
+            Previous
+          </button>
+          <span>Page {page} of {totalPages}</span>
+          <button disabled={page === totalPages} onClick={() => setPage(page + 1)}>
+            Next
+          </button>
+        </div>
+      )}
+
+  
+
     </div>
   );
 };

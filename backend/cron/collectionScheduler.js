@@ -1,7 +1,7 @@
 import cron from "node-cron";
 import { collectArticles } from "../Services/collectionService.js";
 
-// collectArticles()
+collectArticles()
 /**
  * Global article collection scheduler
  * Runs every hour

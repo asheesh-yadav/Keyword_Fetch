@@ -43,5 +43,6 @@ const articleSchema = new mongoose.Schema(
 // Index to improve query performance
 articleSchema.index({ publishedAt: -1 });
 articleSchema.index({ sourceName: 1 });
+articleSchema.index({ sourceId: 1 });
 
 export const Article = mongoose.model("Article", articleSchema);
