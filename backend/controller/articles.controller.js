@@ -1,5 +1,6 @@
 import { Article } from "../model/Article.js";
 import { Parser } from "json2csv";
+// import { Document, Packer, Paragraph, TextRun } from "docx";
 
 
 /* GET /articles
@@ -118,3 +119,139 @@ export const exportArticlesCSV = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+
+// =============== export in word
+// export const exportArticlesCSV = async (req, res) => {
+//   try {
+//     const { search, from, to, source, language } = req.query;
+
+//     const filter = {};
+
+//     // Keyword search
+//     if (search) {
+//       filter.$or = [
+//         { title: { $regex: search, $options: "i" } },
+//         { description: { $regex: search, $options: "i" } }
+//       ];
+//     }
+
+//     // Date range
+//     if (from || to) {
+//       filter.publishedAt = {};
+//       if (from) filter.publishedAt.$gte = new Date(from);
+//       if (to) filter.publishedAt.$lte = new Date(to);
+//     }
+
+//     // Source filter (frontend sends ID or "all")
+//     if (source && source !== "all") {
+//       filter.sourceId = source;
+//     }
+
+//     // Language filter
+//     if (language && language !== "all") {
+//       filter.language = language;
+//     }
+
+//     const articles = await Article.find(filter)
+//       .sort({ publishedAt: -1 })
+//       .lean();
+
+//     /* ===============================
+//        BUILD WORD DOCUMENT
+//     =============================== */
+
+//     const doc = new Document({
+//       sections: [
+//         {
+//           children: [
+//             new Paragraph({
+//               children: [
+//                 new TextRun({
+//                   text: "Media Intelligence Report",
+//                   bold: true,
+//                   size: 32
+//                 })
+//               ],
+//               spacing: { after: 300 }
+//             }),
+
+//             new Paragraph({
+//               children: [
+//                 new TextRun({
+//                   text: `Generated on: ${new Date().toLocaleString()}`,
+//                   italics: true
+//                 })
+//               ],
+//               spacing: { after: 500 }
+//             }),
+
+//             ...articles.flatMap((article) => [
+//               new Paragraph({
+//                 children: [
+//                   new TextRun({
+//                     text: article.title,
+//                     bold: true,
+//                     size: 26
+//                   })
+//                 ],
+//                 spacing: { after: 100 }
+//               }),
+
+//               new Paragraph({
+//                 children: [
+//                   new TextRun({
+//                     text: `${article.sourceName || "Unknown Source"} | ${
+//                       article.language?.toUpperCase() || ""
+//                     } | ${
+//                       article.publishedAt
+//                         ? new Date(article.publishedAt).toDateString()
+//                         : ""
+//                     }`
+//                   })
+//                 ],
+//                 spacing: { after: 200 }
+//               }),
+
+//               new Paragraph({
+//                 children: [
+//                   new TextRun({
+//                     text: article.description || "",
+//                   })
+//                 ],
+//                 spacing: { after: 400 }
+//               }),
+
+//               new Paragraph({
+//                 children: [
+//                   new TextRun({
+//                     text: article.url,
+//                     color: "0000FF",
+//                     underline: {}
+//                   })
+//                 ],
+//                 spacing: { after: 600 }
+//               })
+//             ])
+//           ]
+//         }
+//       ]
+//     });
+
+//     const buffer = await Packer.toBuffer(doc);
+
+//     res.setHeader(
+//       "Content-Disposition",
+//       "attachment; filename=media_intelligence_report.docx"
+//     );
+//     res.setHeader(
+//       "Content-Type",
+//       "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+//     );
+
+//     res.send(buffer);
+//   } catch (err) {
+//     console.error("Word export error:", err);
+//     res.status(500).json({ error: "Failed to export Word document" });
+//   }
+// };
