@@ -25,11 +25,6 @@ const mySchema = new mongoose.Schema(
       }
     ],
 
-    // language: {
-    //   type: String,
-    //   default: "en"
-    // },
-
     frequency: {
       type: String,
       enum: ["hourly", "daily"],

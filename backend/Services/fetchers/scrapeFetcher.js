@@ -43,7 +43,7 @@ export const fetchByScraping = async (source) => {
       });
     });
 
-    // 👉 Fetch FULL article content if selector exists
+    //  Fetch FULL article content if selector exists
     for (const article of articles) {
       if (!article._needsContentFetch) continue;
 

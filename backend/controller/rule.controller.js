@@ -175,3 +175,35 @@ export const getRuleArticles = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+
+// ========== delete rule
+export const deleteMonitoringRule = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).json({
+        message: "Rule ID is required",
+      });
+    }
+
+    const deletedRule = await MonitoringRule.findByIdAndDelete(id);
+
+    if (!deletedRule) {
+      return res.status(404).json({
+        message: "Monitoring rule not found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Monitoring rule deleted successfully",
+      ruleId: id,
+    });
+  } catch (error) {
+    console.error("Delete rule error:", error);
+    return res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+};

@@ -2,7 +2,6 @@ import { Source } from "../model/Source.js";
 import { Article } from "../model/Article.js";
 import { fetchFromRSS } from "./fetchers/rssFetcher.js";
 import { fetchByScraping } from "./fetchers/scrapeFetcher.js";
-import { fetchFromAPI } from "./fetchers/apiFetcher.js";
 
 /**
  * Collect articles globally (no rules, no alerts)
@@ -24,12 +23,8 @@ if (source.fetchMethod  === "scraper") {
    articles = await fetchByScraping(source);
 }
 
-if (source.fetchMethod === "api") {
-  articles = await fetchFromAPI(source);
-}
-
 if (!articles.length) {
-  console.log(`[COLLECTOR] 0 fetched from ${source.name}`);
+  console.log(`[COLLECTOR] 0 fetched from ${source.name} (${source.fetchMethod})`);
   continue;
 }
 

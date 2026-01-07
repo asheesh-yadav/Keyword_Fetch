@@ -7,7 +7,7 @@ const RuleForm = ({ onCreated }) => {
   const [keywords, setKeywords] = useState("");
   const [sources, setSources] = useState([]);
   const [selectedSource, setSelectedSource] = useState("");
-  const [alertType, setAlertType] = useState("daily");
+  const [alertType, setAlertType] = useState("Instant");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
 
@@ -30,7 +30,7 @@ const RuleForm = ({ onCreated }) => {
     setName("");
     setKeywords("");
     setSelectedSource("");
-    setAlertType("daily");
+    setAlertType("Instant");
 
     setLoading(false);
     setSuccess("Rule created successfully");
@@ -91,8 +91,8 @@ const RuleForm = ({ onCreated }) => {
               value={alertType}
               onChange={(e) => setAlertType(e.target.value)}
             >
-              <option value="daily">Daily Digest</option>
               <option value="instant">Instant</option>
+              <option value="daily">Daily Digest</option>
             </select>
           </div>
 

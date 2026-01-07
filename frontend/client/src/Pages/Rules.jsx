@@ -28,11 +28,20 @@ const fetchRules = async (newRuleId) => {
     fetchRules();
   }, []);
 
+
+  // -------- delete rules
   const deleteRule = async (id) => {
-    if (!window.confirm("Delete this rule?")) return;
+  if (!window.confirm("Delete this rule?")) return;
+
+  try {
     await api.delete(`/rules/${id}`);
-    fetchRules();
-  };
+    setRules((prev) => prev.filter((r) => r._id !== id));
+  } catch (err) {
+    console.error("Delete failed", err);
+    alert("Failed to delete rule");
+  }
+};
+
 
   return (
     <div className="container-fluid rules-page">
@@ -89,6 +98,7 @@ const fetchRules = async (newRuleId) => {
 
                     <button
                       className="btn btn-outline-danger btn-sm"
+                      disabled={loading}
                       onClick={() => deleteRule(rule._id)}
                     >
                       Delete

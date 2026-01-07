@@ -1,6 +1,13 @@
 import Parser from "rss-parser";
 
-const parser = new Parser();
+// const parser = new Parser();
+const parser = new Parser({
+  headers: {
+    "User-Agent": "Mozilla/5.0 (MediaMonitor/1.0; +https://yourdomain.com)"
+  },
+  timeout: 15000
+});
+
 
 /**
  * Fetch articles from an RSS feed

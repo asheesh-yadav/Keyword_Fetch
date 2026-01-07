@@ -1,114 +1,167 @@
 import { Source } from "../model/Source.js";
-import { fetchFromRSS } from "./fetchers/rssFetcher.js";
 import { Article } from "../model/Article.js";
 import { RuleMatch } from "../model/RuleMatch.js";
+
+import { fetchFromRSS } from "./fetchers/rssFetcher.js";
+import { fetchByScraping } from "./fetchers/scrapeFetcher.js";
+import { fetchFromAPI } from "./fetchers/apiFetcher.js";           // GNews
+import { fetchFromNewsAPI } from "./fetchers/newsApiFetcher.js";  // NewsAPI
+
 import { matchKeywords } from "../Services/keywordMatcher.js";
 import { sendAlertEmail } from "../utils/sendEmail.js";
-import { fetchByScraping } from "./fetchers/scrapeFetcher.js";
-import { fetchFromAPI } from "./fetchers/apiFetcher.js";
+import { MonitoringRule } from "../model/rule.js";
 
 /**
  * Execute a monitoring rule
+ * Priority:
+ * 1. GNews API
+ * 2. NewsAPI (fallback)
+ * 3. RSS / Scraper (fallback)
  */
 export const executeRule = async (rule) => {
   console.log(`[EXECUTOR] Executing rule: ${rule.name}`);
 
-  const sources = await Source.find({
-    _id: { $in: rule.sources },
-    active: true
+  let allArticles = [];
+
+  /* -------------------------------------------------
+      1 PRIMARY: GNEWS API
+  ------------------------------------------------- */
+  let apiArticles = await fetchFromAPI({
+    keywords: rule.keywords,
+    language: rule.language
   });
 
-  for (const source of sources) {
-       let articles = []; 
-       
-   if (source.fetchMethod === "rss") {
-     articles = await fetchFromRSS(source);
-   }
-   if (source.fetchMethod === "scraper") {
-     articles = await fetchByScraping(source);
-   }
-   
-if (source.fetchMethod === "api") {
-  articles = await fetchFromAPI(source);
-}
+  if (apiArticles.length) {
+    console.log(`[EXECUTOR] ${apiArticles.length} articles fetched from GNews`);
+    allArticles = apiArticles;
+  }
 
-  if (!articles.length) {
-  console.log(`[COLLECTOR] 0 fetched from ${source.name}`);
-  continue;
-}
+  /* -------------------------------------------------
+      2 FALLBACK: NEWSAPI
+  ------------------------------------------------- */
+  if (!apiArticles.length) {
+    console.log("[EXECUTOR] GNews empty → falling back to NewsAPI");
 
-    console.log(
-      `[EXECUTOR] ${articles.length} articles fetched from ${source.name}`
-    );
+    const newsApiArticles = await fetchFromNewsAPI({
+      keywords: rule.keywords,
+      language: rule.language
+    });
 
-    for (const articleData of articles) {
-      const textToMatch = `${articleData.title} ${articleData.description || ""}`;
+    if (newsApiArticles.length) {
+      console.log(
+        `[EXECUTOR] ${newsApiArticles.length} articles fetched from NewsAPI`
+      );
+      allArticles = newsApiArticles;
+    }
+  }
 
-      const matchedKeywords = matchKeywords(
-        textToMatch,
-        rule.keywords
+  /* -------------------------------------------------
+      3 FALLBACK: RSS + SCRAPER
+  ------------------------------------------------- */
+  if (!allArticles.length) {
+    console.log("[EXECUTOR] APIs empty → falling back to sources");
+
+    const sources = await Source.find({
+      _id: { $in: rule.sources },
+      active: true,
+      fetchMethod: { $in: ["rss", "scraper"] }
+    });
+
+    for (const source of sources) {
+      let articles = [];
+
+      if (source.fetchMethod === "rss") {
+        articles = await fetchFromRSS(source);
+      }
+
+      if (source.fetchMethod === "scraper") {
+        articles = await fetchByScraping(source);
+      }
+
+      if (!articles.length) {
+        console.log(
+          `[EXECUTOR] 0 fetched from ${source.name} (${source.fetchMethod})`
+        );
+        continue;
+      }
+
+      console.log(
+        `[EXECUTOR] ${articles.length} articles fetched from ${source.name}`
       );
 
-      // Ignore articles that don't match rule keywords
-      if (matchedKeywords.length === 0) continue;
+      allArticles = allArticles.concat(articles);
+    }
+  }
 
-      try {
-        // Save article globally (deduplicated by URL)
-const article = await Article.findOneAndUpdate(
-  { url: articleData.url },
-  {
-    title: articleData.title,
-    description: articleData.description,
-    publishedAt: articleData.publishedAt,
-    sourceName: source.name,
-    sourceId: source._id,
-    language: source.language, 
-  },
-  { upsert: true, new: true }
-);
+  /* -------------------------------------------------
+      MATCH, SAVE & ALERT
+  ------------------------------------------------- */
+  for (const articleData of allArticles) {
+    const textToMatch = `${articleData.title} ${articleData.description || ""}`;
 
-        // Save rule-article match
+    const matchedKeywords = matchKeywords(
+      textToMatch,
+      rule.keywords
+    );
+
+    if (matchedKeywords.length === 0) continue;
+
+    try {
+      // Save article globally (deduplicated by URL)
+      const article = await Article.findOneAndUpdate(
+        { url: articleData.url },
+        {
+          title: articleData.title,
+          description: articleData.description,
+          publishedAt: articleData.publishedAt,
+          sourceName: articleData.sourceName || "API",
+          sourceId: articleData.sourceId || null,
+          language: articleData.language || rule.language
+        },
+        { upsert: true, new: true }
+      );
+
+      // Save rule-article relationship
       const ruleMatch = await RuleMatch.findOneAndUpdate(
-          {
-            rule: rule._id,
-            article: article._id
-          },
-          {
-            matchedKeywords,
-            matchedAt: new Date()
-          },
-          { upsert: true, new: true }
-        );
+        {
+          rule: rule._id,
+          article: article._id
+        },
+        {
+          matchedKeywords,
+          matchedAt: new Date()
+        },
+        { upsert: true, new: true }
+      );
 
-        console.log(
-          `[MATCHED] ${rule.name} → ${article.title} → ${matchedKeywords.join(", ")}`
-        );
+      console.log(
+        `[MATCHED] ${rule.name} → ${article.title} → ${matchedKeywords.join(", ")}`
+      );
 
-if (rule.alertType === "instant" && !ruleMatch.notified) {
-  // populate rule owner
-  const populatedRule = await rule.populate("createdBy");
+      /* -------------------------------------------------
+          INSTANT ALERT
+      ------------------------------------------------- */
+      if (rule.alertType === "instant" && !ruleMatch.notified) {
+        const populatedRule = await MonitoringRule.populate("createdBy");
+        const userEmail = populatedRule.createdBy.email;
 
-  const userEmail = populatedRule.createdBy.email;
+        await sendAlertEmail({
+          to: userEmail,
+          subject: `[Alert] New article matched: ${rule.name}`,
+          html: `
+            <h3>${article.title}</h3>
+            <p><strong>Source:</strong> ${article.sourceName}</p>
+            <p><a href="${article.url}" target="_blank">Read article</a></p>
+          `
+        });
 
-  await sendAlertEmail({
-    to: userEmail,
-    subject: `[Alert] New article matched: ${rule.name}`,
-    html: `
-      <h3>${article.title}</h3>
-      <p><strong>Source:</strong> ${article.sourceName}</p>
-      <p><a href="${article.url}" target="_blank">Read article</a></p>
-    `
-  });
+        ruleMatch.notified = true;
+        await ruleMatch.save();
 
-  ruleMatch.notified = true;
-  await ruleMatch.save();
-
-  console.log(`[ALERT SENT] ${userEmail} → ${article.title}`);
-}
-
-      } catch (error) {
-        console.error("[EXECUTOR ERROR]", error.message);
+        console.log(`[ALERT SENT] ${userEmail} → ${article.title}`);
       }
+    } catch (error) {
+      console.error("[EXECUTOR ERROR]", error.message);
     }
   }
 };
