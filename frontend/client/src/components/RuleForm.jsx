@@ -7,7 +7,7 @@ const RuleForm = ({ onCreated }) => {
   const [keywords, setKeywords] = useState("");
   const [sources, setSources] = useState([]);
   const [selectedSource, setSelectedSource] = useState("");
-  const [alertType, setAlertType] = useState("Instant");
+  const [alertType, setAlertType] = useState("instant");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
 
@@ -30,7 +30,7 @@ const RuleForm = ({ onCreated }) => {
     setName("");
     setKeywords("");
     setSelectedSource("");
-    setAlertType("Instant");
+    setAlertType("instant");
 
     setLoading(false);
     setSuccess("Rule created successfully");
