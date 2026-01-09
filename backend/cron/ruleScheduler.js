@@ -27,18 +27,18 @@ export const startRuleScheduler = () => {
     try {
       const now = new Date();
 
-      // const rulesToRun = await MonitoringRule.find({
-      //   status: "active",
-      //   $or: [
-      //     { nextRunAt: { $lte: now } },
-      //     { nextRunAt: { $exists: false } }
-      //   ]
-      // });
+      const rulesToRun = await MonitoringRule.find({
+        status: "active",
+        $or: [
+          { nextRunAt: { $lte: now } },
+          { nextRunAt: { $exists: false } }
+        ]
+      });
 
       // *****************For testing only — runs all active rules regardless of nextRunAt
-const rulesToRun = await MonitoringRule.find({
-  status: "active"
-});
+// const rulesToRun = await MonitoringRule.find({
+//   status: "active"
+// });
 
       for (const rule of rulesToRun) {
           console.log(
