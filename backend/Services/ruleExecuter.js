@@ -142,9 +142,12 @@ export const executeRule = async (rule) => {
           INSTANT ALERT
       ------------------------------------------------- */
       if (rule.alertType === "instant" && !ruleMatch.notified) {
-        const populatedRule = await MonitoringRule.populate("createdBy");
-        const userEmail = populatedRule.createdBy.email;
-
+        if (!rule.createdBy?.email) {
+          console.warn("[ALERT] Rule has no user email, skipping alert");
+          continue;
+        }
+        const userEmail = rule.createdBy.email;
+        
         await sendAlertEmail({
           to: userEmail,
           subject: `[Alert] New article matched: ${rule.name}`,

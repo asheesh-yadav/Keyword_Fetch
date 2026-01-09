@@ -141,6 +141,8 @@ const Dashboard = () => {
               <option value="ru">Russian</option>
               <option value="pt">Portuguese</option>
               <option value="es">Spanish</option>
+               <option value="th">Thai</option>
+              <option value="ko">Korean</option>
             </select>
       
           </div>

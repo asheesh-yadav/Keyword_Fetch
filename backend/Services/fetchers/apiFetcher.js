@@ -4,10 +4,22 @@ dotenv.config();
 
 const GNEWS_API_KEY = process.env.GNEWS_API_KEY;
 
+
 export const fetchFromAPI = async ({ keywords, language }) => {
   if (!keywords || keywords.length === 0) return [];
 
-  const query = keywords.slice(0, 5).join(" OR ");
+  function sanitizeKeywords(keywords = []) {
+  return keywords
+    .flatMap(k =>
+      k
+        .replace(/and|\*|、/gi, " ")
+        .split(/\s+/)
+    )
+    .filter(Boolean)
+    .slice(0, 5);
+}
+
+  const query = sanitizeKeywords(rule.keywords).join(" OR ");
 
   try {
     const res = await axios.get("https://gnews.io/api/v4/search", {
