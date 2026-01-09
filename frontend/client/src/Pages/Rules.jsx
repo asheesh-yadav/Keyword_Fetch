@@ -8,40 +8,46 @@ const Rules = () => {
   const [loading, setLoading] = useState(true);
   const [highlightRuleId, setHighlightRuleId] = useState(null);
 
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [limit] = useState(6); 
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
-  if (highlightRuleId) {
-    setTimeout(() => setHighlightRuleId(null), 4000);
-  }
-}, [highlightRuleId]);
+    if (highlightRuleId) {
+      setTimeout(() => setHighlightRuleId(null), 4000);
+    }
+  }, [highlightRuleId]);
 
+  const fetchRules = async (newRuleId) => {
+    setLoading(true);
 
-const fetchRules = async (newRuleId) => {
-  setLoading(true);
-  const res = await api.get("/rules");
-  setRules(res.data.rules || res.data || []);
-  setHighlightRuleId(newRuleId || null);
-  setLoading(false);
-};
+    const res = await api.get("/rules", {
+      params: { page, limit }
+    });
+
+   setRules(res.data.rules || []);
+setTotalPages(res.data.totalPages || 1);
+    setHighlightRuleId(newRuleId || null);
+    setLoading(false);
+  };
 
   useEffect(() => {
     fetchRules();
-  }, []);
-
+  }, [page]);
 
   // -------- delete rules
   const deleteRule = async (id) => {
-  if (!window.confirm("Delete this rule?")) return;
+    if (!window.confirm("Delete this rule?")) return;
 
-  try {
-    await api.delete(`/rules/${id}`);
-    setRules((prev) => prev.filter((r) => r._id !== id));
-  } catch (err) {
-    console.error("Delete failed", err);
-    alert("Failed to delete rule");
-  }
-};
-
+    try {
+      await api.delete(`/rules/${id}`);
+      fetchRules(); // refresh
+    } catch (err) {
+      console.error("Delete failed", err);
+      alert("Failed to delete rule");
+    }
+  };
 
   return (
     <div className="container-fluid rules-page">
@@ -60,10 +66,11 @@ const fetchRules = async (newRuleId) => {
         ) : (
           rules.map((rule) => (
             <div className="col-md-6 col-lg-4" key={rule._id}>
-                  <div
-                      className={`card rule-card h-100 ${highlightRuleId === rule._id ? "rule-highlight" : ""
-                          }`}
-                  >
+              <div
+                className={`card rule-card h-100 ${
+                  highlightRuleId === rule._id ? "rule-highlight" : ""
+                }`}
+              >
                 <div className="card-body">
                   <h6 className="fw-bold">{rule.name}</h6>
 
@@ -110,6 +117,29 @@ const fetchRules = async (newRuleId) => {
           ))
         )}
       </div>
+
+      {/* === PAGINATION === */}
+      {totalPages > 1 && (
+        <div className="pagination-bar mt-4">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+          >
+            Previous
+          </button>
+
+          <span>
+            Page {page} of {totalPages}
+          </span>
+
+          <button
+            disabled={page === totalPages}
+            onClick={() => setPage(page + 1)}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };

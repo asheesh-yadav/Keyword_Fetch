@@ -11,25 +11,39 @@ const RuleDetails = () => {
   const [ruleName, setRuleName] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [total, setTotal] = useState(0);
+
+  const totalPages = Math.ceil(total / limit);
+
   const fetchRuleArticles = async () => {
     setLoading(true);
 
-    const res = await api.get(`/rules/${id}/articles`);
+    const res = await api.get(`/rules/${id}/articles`, {
+      params: { page, limit }
+    });
 
     setArticles(res.data.articles || []);
+    setTotal(res.data.total || 0);
     setLoading(false);
   };
 
   const fetchRuleInfo = async () => {
     const res = await api.get("/rules");
-    const rule = res.data.rules.find((r) => r._id === id);
+    const rules = res.data.rules || res.data;
+    const rule = rules.find((r) => r._id === id);
     if (rule) setRuleName(rule.name);
   };
 
   useEffect(() => {
     fetchRuleInfo();
-    fetchRuleArticles();
   }, [id]);
+
+  useEffect(() => {
+    fetchRuleArticles();
+  }, [id, page]);
 
   return (
     <div className="container-fluid rule-details">
@@ -41,6 +55,29 @@ const RuleDetails = () => {
       </div>
 
       <ArticleList articles={articles} loading={loading} />
+
+      {/* PAGINATION */}
+      {totalPages > 1 && (
+        <div className="pagination-bar mt-4">
+          <button
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+          >
+            Previous
+          </button>
+
+          <span>
+            Page {page} of {totalPages}
+          </span>
+
+          <button
+            disabled={page === totalPages}
+            onClick={() => setPage(page + 1)}
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };
