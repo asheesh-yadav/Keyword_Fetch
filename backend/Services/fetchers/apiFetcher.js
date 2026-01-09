@@ -19,7 +19,8 @@ export const fetchFromAPI = async ({ keywords, language }) => {
     .slice(0, 5);
 }
 
-  const query = sanitizeKeywords(rule.keywords).join(" OR ");
+
+  const query = sanitizeKeywords(keywords).join(" OR ");
 
   try {
     const res = await axios.get("https://gnews.io/api/v4/search", {
