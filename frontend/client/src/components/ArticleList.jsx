@@ -2,65 +2,78 @@ import "./ArticleList.css";
 import { useState } from "react";
 import ArticleModal from "./ArticleModal";
 
-
-
 const ArticleList = ({ articles, loading }) => {
-const [selectedArticle, setSelectedArticle] = useState(null);
-
+  const [selectedArticle, setSelectedArticle] = useState(null);
 
   if (loading) {
-    return <div className="text-center py-5">Loading articles...</div>;
+    return <div className="article-loading">🔄 Loading results...</div>;
   }
 
   if (!articles.length) {
-    return <div className="text-center py-5 text-muted">No articles found</div>;
+    return (
+      <div className="empty-state">
+        😔 No results found. Try changing filters.
+      </div>
+    );
   }
 
   return (
-    <div className="row g-4">
-      {articles.map((article) => (
-        <div className="col-md-6 col-lg-4" key={article._id}>
-          <div className="card article-card h-100">
-            <div className="card-body d-flex flex-column">
-              <h6 className="card-title">{article.title}</h6>
+    <div className="article-wrapper">
 
-              <p className="card-text text-muted small">
-                {article.description?.slice(0, 120)}...
-              </p>
+      {articles.map((a, index) => (
+        <div className="article-row" key={a._id}>
 
-              <div className="mt-auto">
-                <span className="badge bg-secondary me-2">
-                  {article.sourceName}
-                </span>
-                <small className="text-muted">
-                  {new Date(article.publishedAt).toLocaleDateString()}
-                </small>
+          {/* LEFT */}
+          <div className="article-left">
+            <span className="source">
+              📰 {a.sourceName}
+            </span>
 
-                          <div className="mt-3 d-flex gap-2">
-                              <a
-                                  href={article.url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="btn btn-sm btn-outline-primary w-100"
-                              >
-                                  Read
-                              </a>
+            <span className="date">
+              📅 {new Date(a.publishedAt).toLocaleDateString()}
+            </span>
+          </div>
 
-                              <button
-                                  className="btn btn-sm btn-outline-secondary w-100"
-                                  onClick={() => setSelectedArticle(article)}
-                              >
-                                  Details
-                              </button>
-                          </div>
+          {/* MAIN */}
+          <div className="article-main">
+            <h4>{a.title}</h4>
 
-              </div>
+            <p>
+              {a.description?.slice(0, 160)}...
+            </p>
+
+            <div className="article-tags">
+              <span className="tag lang">
+                🌐 {a.language?.toUpperCase() || "N/A"}
+              </span>
+
+              <span className="tag index">
+                #{index + 1}
+              </span>
             </div>
           </div>
+
+          {/* ACTIONS */}
+          <div className="article-actions">
+            <a
+              href={a.url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              🔗 Open
+            </a>
+
+            <button
+              onClick={() => setSelectedArticle(a)}
+            >
+              📄 Details
+            </button>
+          </div>
+
         </div>
       ))}
 
-       {selectedArticle && (
+      {selectedArticle && (
         <ArticleModal
           article={selectedArticle}
           onClose={() => setSelectedArticle(null)}

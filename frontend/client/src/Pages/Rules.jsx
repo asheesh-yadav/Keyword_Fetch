@@ -50,97 +50,102 @@ setTotalPages(res.data.totalPages || 1);
   };
 
   return (
-    <div className="container-fluid rules-page">
-      <div className="mb-4">
-        <h4 className="fw-bold">Monitoring Rules</h4>
-        <p className="text-muted">
-          Automatically monitor keywords and receive alerts
-        </p>
+   <div className="container-fluid rules-page">
+
+  {/* HEADER */}
+  <div className="rules-header">
+    <h3>📡 Monitoring Rules</h3>
+    <p>
+      Automatically monitor keywords and receive alerts in real time
+    </p>
+  </div>
+
+  <RuleForm onCreated={fetchRules} />
+
+  {/* RULES GRID */}
+  <div className="row g-4">
+
+    {loading ? (
+      <div className="text-center py-5">
+        <div className="loader"></div>
+        Loading rules...
       </div>
+    ) : (
+      rules.map((rule) => (
+        <div className="col-md-6 col-lg-4" key={rule._id}>
 
-      <RuleForm onCreated={fetchRules} />
+          <div
+            className={`rule-card-advanced ${
+              highlightRuleId === rule._id ? "rule-highlight" : ""
+            }`}
+          >
 
-      <div className="row g-4">
-        {loading ? (
-          <div className="text-center py-5">Loading rules...</div>
-        ) : (
-          rules.map((rule) => (
-            <div className="col-md-6 col-lg-4" key={rule._id}>
-              <div
-                className={`card rule-card h-100 ${
-                  highlightRuleId === rule._id ? "rule-highlight" : ""
-                }`}
-              >
-                <div className="card-body">
-                  <h6 className="fw-bold">{rule.name}</h6>
-
-                  <div className="mb-2">
-                    {rule.keywords.map((k) => (
-                      <span
-                        key={k}
-                        className="badge bg-light text-dark me-1"
-                      >
-                        {k}
-                      </span>
-                    ))}
-                  </div>
-
-                  <p className="text-muted small mb-1">
-                    Alert: {rule.alertType}
-                  </p>
-
-                  <p className="text-muted small">
-                    Status: {rule.status}
-                  </p>
-
-                  <div className="d-flex gap-2 mt-3">
-                    <button
-                      className="btn btn-outline-primary btn-sm w-100"
-                      onClick={() =>
-                        window.location.href = `/rules/${rule._id}`
-                      }
-                    >
-                      View Results
-                    </button>
-
-                    <button
-                      className="btn btn-outline-danger btn-sm"
-                      disabled={loading}
-                      onClick={() => deleteRule(rule._id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
+            <div className="rule-card-header">
+              <h5>{rule.name}</h5>
+              <span className={`status ${rule.status}`}>
+                {rule.status}
+              </span>
             </div>
-          ))
-        )}
-      </div>
 
-      {/* === PAGINATION === */}
-      {totalPages > 1 && (
-        <div className="pagination-bar mt-4">
-          <button
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
-          >
-            Previous
-          </button>
+            <div className="keywords">
+              {rule.keywords.map((k) => (
+                <span key={k} className="keyword-badge">
+                  #{k}
+                </span>
+              ))}
+            </div>
 
-          <span>
-            Page {page} of {totalPages}
-          </span>
+            <p className="meta">
+              ⚡ Alert: <b>{rule.alertType}</b>
+            </p>
 
-          <button
-            disabled={page === totalPages}
-            onClick={() => setPage(page + 1)}
-          >
-            Next
-          </button>
+            <div className="rule-actions">
+              <button
+                className="btn-view"
+                onClick={() =>
+                  window.location.href = `/rules/${rule._id}`
+                }
+              >
+                View Results
+              </button>
+
+              <button
+                className="btn-delete"
+                onClick={() => deleteRule(rule._id)}
+              >
+                Delete
+              </button>
+            </div>
+
+          </div>
         </div>
-      )}
+      ))
+    )}
+  </div>
+
+  {/* PAGINATION */}
+  {totalPages > 1 && (
+    <div className="pagination-bar mt-4">
+      <button
+        disabled={page === 1}
+        onClick={() => setPage(page - 1)}
+      >
+        ◀ Previous
+      </button>
+
+      <span>
+        Page {page} of {totalPages}
+      </span>
+
+      <button
+        disabled={page === totalPages}
+        onClick={() => setPage(page + 1)}
+      >
+        Next ▶
+      </button>
     </div>
+  )}
+</div>
   );
 };
 

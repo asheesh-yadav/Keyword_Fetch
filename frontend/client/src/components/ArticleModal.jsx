@@ -23,49 +23,54 @@ const ArticleModal = ({ article, onClose }) => {
   };
 
   return (
-    <div className="modal fade show article-modal" style={{ display: "block" }}>
-      <div className="modal-dialog modal-lg modal-dialog-centered">
-        <div className="modal-content">
-          <div className="modal-header">
-            <h6 className="modal-title">{article.title}</h6>
-            <button className="btn-close" onClick={onClose}></button>
-          </div>
+    <div className="article-overlay">
+      <div className="article-modal-box">
 
-          <div className="modal-body">
-            <p className="text-muted small mb-2">
-              {article.sourceName} •{" "}
-              {new Date(article.publishedAt).toLocaleString()}
-            </p>
+        {/* HEADER */}
+        <div className="modal-header-new">
+          <h3>{article.title}</h3>
+          <button onClick={onClose}>✕</button>
+        </div>
 
-            <p>{article.description}</p>
+        {/* META */}
+        <p className="modal-meta">
+          📰 {article.sourceName} • 📅{" "}
+          {new Date(article.publishedAt).toLocaleString()}
+        </p>
 
-            <a href={article.url} target="_blank" rel="noreferrer">
-              Read original article
-            </a>
-          </div>
+        {/* CONTENT */}
+        <div className="modal-content-new">
+          <p>{article.description}</p>
 
-          <div className="modal-footer d-flex justify-content-between">
-            <div>
-              <button
-                className="btn btn-outline-secondary btn-sm me-2"
-                onClick={handleCopy}
-              >
-                Copy Link
-              </button>
+          <a
+            href={article.url}
+            target="_blank"
+            rel="noreferrer"
+            className="read-link"
+          >
+            🔗 Read original article
+          </a>
+        </div>
 
-              <button
-                className="btn btn-outline-primary btn-sm"
-                onClick={handleExport}
-              >
-                Export CSV
-              </button>
-            </div>
+        {/* FOOTER */}
+        <div className="modal-footer-new">
 
-            <button className="btn btn-secondary btn-sm" onClick={onClose}>
-              Close
+          <div className="left-actions">
+            <button onClick={handleCopy} className="btn-outline">
+              📋 Copy link
+            </button>
+
+            <button onClick={handleExport} className="btn-primary">
+              ⬇ Export CSV
             </button>
           </div>
+
+          <button onClick={onClose} className="btn-close-new">
+            Close
+          </button>
+
         </div>
+
       </div>
     </div>
   );

@@ -81,12 +81,12 @@ const Dashboard = () => {
       {/* === PRODUCT CONTEXT HEADER === */}
       <div className="dashboard-header">
         <div>
-          <h2>Media Intelligence Workspace</h2>
-          <p>
-            Discover, analyze, and monitor narratives across global media
-            sources. Use structured filters to reduce noise and surface
-            relevant signals.
-          </p>
+         <h2>Media Intelligence Dashboard</h2>
+<p>
+Track global media coverage in real time.
+Filter by source, language, and date to surface
+relevant stories.
+</p>
         </div>
 
         <button

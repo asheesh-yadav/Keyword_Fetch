@@ -11,16 +11,17 @@ const RuleForm = ({ onCreated }) => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
 
-
   useEffect(() => {
-    api.get("/sources").then((res) => setSources(res.data.sources || res.data || []));
+    api.get("/sources").then((res) =>
+      setSources(res.data.sources || res.data || [])
+    );
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-  const res = await api.post("/rules", {
+    const res = await api.post("/rules", {
       name,
       keywords: keywords.split(",").map((k) => k.trim()),
       sources: selectedSource ? [selectedSource] : [],
@@ -33,79 +34,103 @@ const RuleForm = ({ onCreated }) => {
     setAlertType("instant");
 
     setLoading(false);
-    setSuccess("Rule created successfully");
-   onCreated(res.data._id);
+    setSuccess("Rule created successfully!");
+    onCreated(res.data._id);
   };
 
   return (
-    <div className="card rule-form-card mb-4">
-      <div className="card-body">
-        <h6 className="fw-bold mb-3">Create Monitoring Rule</h6>
-              {success && (
-                  <div className="alert alert-success mb-3">
-                      {success}
-                  </div>
-              )}
-        <form onSubmit={handleSubmit} className="row g-3">
-          <div className="col-md-6">
-            <label className="form-label">Rule Name</label>
-            <input
-              className="form-control"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
+    <div className="rule-wrapper">
 
-          <div className="col-md-6">
-            <label className="form-label">Keywords (comma separated)</label>
-            <input
-              className="form-control"
-              placeholder="Trump, AI regulation"
-              required
-              value={keywords}
-              onChange={(e) => setKeywords(e.target.value)}
-            />
-          </div>
-
-          <div className="col-md-6">
-            <label className="form-label">Source</label>
-            <select
-              className="form-select"
-              value={selectedSource}
-              onChange={(e) => setSelectedSource(e.target.value)}
-            >
-              <option value="">All Sources</option>
-              {sources.map((s) => (
-                <option key={s._id} value={s._id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="col-md-4">
-            <label className="form-label">Alert Type</label>
-            <select
-              className="form-select"
-              value={alertType}
-              onChange={(e) => setAlertType(e.target.value)}
-            >
-              <option value="instant">Instant</option>
-              <option value="daily">Daily Digest</option>
-            </select>
-          </div>
-
-          <div className="col-md-2 d-flex align-items-end">
-            <button
-              className="btn btn-primary w-100"
-              disabled={loading}
-            >
-              {loading ? "Saving..." : "Create"}
-            </button>
-          </div>
-        </form>
+      <div className="rule-heading">
+        <h2>Create Monitoring Rule</h2>
+        <p>Track keywords across your selected media sources</p>
       </div>
+
+      {success && (
+        <div className="rule-success">
+          ✅ {success}
+        </div>
+      )}
+
+     <form onSubmit={handleSubmit} className="rule-form-full">
+
+  {/* ROW 1 */}
+  <div className="form-row">
+
+    <div className="form-group">
+      <label>Rule Name</label>
+      <div className="input-wrap">
+        <span>📝</span>
+        <input
+          required
+          placeholder="AI Policy Tracker"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      </div>
+    </div>
+
+    <div className="form-group">
+      <label>Keywords</label>
+      <div className="input-wrap">
+        <span>🔍</span>
+        <input
+          required
+          placeholder="AI, regulation, OpenAI"
+          value={keywords}
+          onChange={(e) => setKeywords(e.target.value)}
+        />
+      </div>
+    </div>
+
+  </div>
+
+  {/* ROW 2 */}
+  <div className="form-row">
+
+    <div className="form-group">
+      <label>Source</label>
+      <div className="input-wrap">
+        <span>🌐</span>
+        <select
+          value={selectedSource}
+          onChange={(e) => setSelectedSource(e.target.value)}
+        >
+          <option value="">All Sources</option>
+          {sources.map((s) => (
+            <option key={s._id} value={s._id}>
+              {s.name}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+
+    <div className="form-group">
+      <label>Alert Type</label>
+      <div className="input-wrap">
+        <span>⚡</span>
+        <select
+          value={alertType}
+          onChange={(e) => setAlertType(e.target.value)}
+        >
+          <option value="instant">Instant Alerts</option>
+          <option value="daily">Daily Digest</option>
+        </select>
+      </div>
+    </div>
+
+  </div>
+
+  <button
+    className="rule-btn"
+    disabled={loading}
+  >
+    {loading ? "Saving..." : "Create Rule"}
+  </button>
+
+</form>
+
     </div>
   );
 };
