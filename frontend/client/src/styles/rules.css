@@ -6,6 +6,10 @@
 .rules-header{
   text-align:center;
   margin-bottom:35px;
+      background: #e0e7ff;
+    padding: 15px;
+    border-radius: 15px;
+    border-left: 5px solid #666ed6;
 }
 
 .rules-header h3{

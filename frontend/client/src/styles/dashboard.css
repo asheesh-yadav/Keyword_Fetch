@@ -16,11 +16,12 @@ margin: auto;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 22px;
-    background: white;
+    background: #e0e7ff;
   padding: 20px 24px;
   border-radius: 16px;
   border: 1px solid #e5e7eb;
   box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  border-left: 5px solid #666ed6;
 }
 
 
